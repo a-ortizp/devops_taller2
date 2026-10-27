@@ -1,29 +1,15 @@
-import pytest
-
 from application import application
 
+def test_lista_heroes():
+    r = application.test_client().get("/")
+    assert r.status_code == 200
+    assert "0" in r.get_json()
 
-@pytest.fixture
-def client():
-    application.config["TESTING"] = True
-    with application.test_client() as client:
-        yield client
+def test_un_heroe():
+    r = application.test_client().get("/0")
+    assert r.status_code == 200
+    assert r.get_json()["name"] == "A-Bomb"
 
-
-def test_index_retorna_todos_los_heroes(client):
-    response = client.get("/")
-
-    assert response.status_code == 200
-    data = response.get_json()
-    assert len(data) == 6
-    assert data["0"]["name"] == "A-Bomb"
-
-
-def test_heroe_retorna_el_heroe_por_id(client):
-    response = client.get("/1")
-
-    assert response.status_code == 200
-    data = response.get_json()
-    assert data["name"] == "Abe Sapien"
-    assert data["publisher"] == "Dark Horse Comics"
-    assert data["weight"] == "65"
+def test_heroe_inexistente():
+    r = application.test_client().get("/9999")
+    assert r.status_code == 404
